@@ -1,0 +1,65 @@
+{% extends 'marketplace/base.html' %}
+
+{% block title %}Dashboard - Eco-Cycle{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="text-success fw-bold">{{ dashboard_title }}</h2>
+        <p class="text-muted">Welcome to your personal Eco-Cycle command center.</p>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for item in items %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                {% if item.image %}
+    <!-- Changed 'cover' to 'contain' and added a background color -->
+    <img src="{{ item.image.url }}" alt="{{ item.title }}" class="mb-3" style="width: 100%; height: 300px; object-fit: cover; background-color: #f8f9fa;">
+    {% else %}
+    <div class="mb-3" style="width: 100%; height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center;">
+        <span class="text-muted">No Image Available</span>
+    </div>
+{% endif %}
+                
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">{{ item.title }}</h5>
+                    <p class="card-text text-muted small mb-2">{{ item.category.name }}</p>
+                    <h6 class="text-success fw-bold">Ksh {{ item.estimated_salvage_value }}</h6>
+                    
+                   {% if profile.user_type == 'household' %}
+                        <!-- Households see the status of their item -->
+                        <div class="mt-3">
+                            {% if item.is_available %}
+                                <span class="badge bg-primary">Available for Salvage</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Claimed</span>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <!-- NEW: Technicians see pickup details -->
+                        <div class="mt-3 bg-light p-3 rounded border border-success border-opacity-25">
+                            <span class="d-block small fw-bold text-success mb-2">Pickup Contact Information:</span>
+                            <span class="d-block small text-dark"><i class="bi bi-person"></i> {{ item.owner.username }}</span>
+                            
+                            {% if item.owner.userprofile.phone_number %}
+                                <span class="d-block small text-dark mt-1"><i class="bi bi-telephone"></i> {{ item.owner.userprofile.phone_number }}</span>
+                            {% else %}
+                                <span class="d-block small text-muted mt-1 fst-italic">No phone provided</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted fs-5">Nothing to show here yet!</p>
+            {% if profile.user_type == 'household' %}
+                <a href="{% url 'add_item' %}" class="btn btn-success mt-2">List Your First Item</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
