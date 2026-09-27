@@ -1,30 +1,105 @@
-# ♻️ Eco-Cycle: E-Waste Management System
+# Eco-Cycle E-Waste Marketplace
 
-**Author:** Vinjo Sibabi Archilles  
-**Institution:** Kabarak University  
+Eco-Cycle is a Django web application for listing unwanted electronics and connecting their owners with people interested in salvaging or reusing them. Users can browse listings, search by title or description, filter by category, and view estimated salvage values.
 
-## 📌 Project Overview
-Eco-Cycle is a web-based platform built to bridge the gap between e-waste generation and sustainable disposal. It serves as a dynamic marketplace connecting regular citizens (households) with specialized Jua Kali technicians, streamlining the process of salvaging, repairing, and recycling electronic waste. 
+The app includes account types for households and Jua Kali technicians, item listings with optional photos, and a claim flow for available items.
 
-This project demonstrates practical full-stack development, role-based access control, and automated software quality testing.
+## Features
 
-## 🚀 Core Features
-* **Role-Based Architecture:** Distinct user flows for Households (listing waste) and Jua Kali Technicians (salvaging/claiming waste).
-* **Dynamic Marketplace:** A public feed of available e-waste with filtering and search capabilities.
-* **Streamlined Claim Flow:** A one-click lifecycle where technicians can instantly claim available items, removing them from the public marketplace and securing pickup contact details.
-* **Automated UI Testing:** End-to-end frontend testing implemented using Microsoft Playwright to ensure core user flows remain robust.
+- Browse available e-waste listings and search by keyword or category.
+- Register as a household or technician and sign in to the site.
+- Create listings with a description, condition, category, and optional image.
+- Calculate an estimated salvage value from the category's base rate and the item's condition:
+	- Working: 100% of the base rate
+	- Partially working: 50% of the base rate
+	- Dead: 15% of the base rate
+- Claim an item so it no longer appears among available marketplace listings.
+- View a dashboard with claimed items or listing information.
 
-## 🛠️ Tech Stack
-* **Backend:** Python, Django 
-* **Frontend:** HTML5, Bootstrap 5, Django Template Language (DTL)
-* **Database:** SQLite (Development)
-* **Quality Assurance:** Playwright (Automated UI/E2E Testing)
+Role-specific permissions are not yet fully implemented. Creating a listing is not currently restricted to signed-in users, and new listings are assigned to the first user in the database rather than the person submitting the form. Claiming an item requires sign-in but is not restricted to technician accounts. The household dashboard currently displays all items rather than only items listed by that user.
 
-## ⚙️ Local Setup and Installation
+## Technology
 
-Follow these steps to run the Eco-Cycle platform on your local machine.
+- Python and Django
+- Django templates, HTML, and Bootstrap 5
+- SQLite for local development
+- Playwright for a browser-based marketplace check
 
-### 1. Clone the Repository
+## Requirements
+
+- Python 3.12 or newer
+- pip
+
+## Run Locally
+
+Open a terminal in the repository directory and run:
+
 ```bash
-git clone [https://github.com/yourusername/eco-cycle.git](https://github.com/yourusername/eco-cycle.git)
-cd eco-cycle
+git clone https://github.com/Atrain254/Eco-Cycle-E-waste-marketplace.git
+cd Eco-Cycle-E-waste-marketplace
+```
+
+Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+```
+
+On Windows PowerShell:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+On macOS or Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies, create the database tables, and create an administrator account:
+
+```bash
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+Start the development server:
+
+```bash
+python manage.py runserver
+```
+
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) to visit the marketplace. The root URL redirects to `/marketplace/`. Sign in to the admin site at [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/) and add one or more categories with base salvage rates before creating listings.
+
+## Run the Browser Check
+
+The included Playwright script expects the development server to be running. In a second terminal, activate the virtual environment and install Playwright if needed:
+
+```bash
+python -m pip install playwright
+python -m playwright install chromium
+python ui_tests.py
+```
+
+The script opens Chromium in headed mode and checks that the marketplace loads and its search field can be used. It is a small UI smoke check, not a comprehensive automated test suite. Django's `marketplace/tests.py` does not currently define tests.
+
+## Project Layout
+
+```text
+ecocycle/                 Django project settings and URL configuration
+marketplace/              Marketplace models, views, forms, and templates
+media/item_images/        Uploaded listing images
+manage.py                 Django management commands
+ui_tests.py               Playwright browser smoke check
+```
+
+## Development Note
+
+The included Django settings are for local development. Before deploying, replace the development secret key, turn off debug mode, configure allowed hosts, and review Django's deployment security checklist.
+
+## Credits
+
+- **Author:** Vinjo Sibabi Archilles
+- **Institution:** Kabarak University
