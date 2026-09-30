@@ -40,10 +40,10 @@ class Item(models.Model):
     description = models.TextField(help_text="Detailed description of the damage and missing parts")
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, default='dead')
     image = models.ImageField(upload_to='item_images/', blank=True, null=True)
-    
+
     # The Valuation Algorithm output
     estimated_salvage_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
+
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -54,9 +54,9 @@ class Item(models.Model):
     def calculate_value(self):
         if not self.category:
             return 0.00
-            
+
         base_value = float(self.category.base_salvage_rate)
-        
+
         # Apply multipliers based on the condition
         if self.condition == 'working':
             multiplier = 1.0     # 100% of base salvage value
@@ -64,7 +64,7 @@ class Item(models.Model):
             multiplier = 0.50    # 50% of base salvage value
         else: # 'dead'
             multiplier = 0.15    # 15% of base value (just scrap materials)
-            
+
         return base_value * multiplier
 
     # We override the default save method to run our algorithm automatically
@@ -84,10 +84,10 @@ class Item(models.Model):
     title = models.CharField(max_length=200, help_text="E.g., Broken HP EliteBook Screen")
     description = models.TextField(help_text="Detailed description of the damage and missing parts")
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES, default='dead')
-    
+
     # This is where your Valuation Algorithm output will be saved!
     estimated_salvage_value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    
+
     is_available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -95,3 +95,16 @@ class Item(models.Model):
         return f"{self.title} (Ksh {self.estimated_salvage_value})"
 
     claimed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='claimed_items')
+
+class MpesaTransaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    checkout_request_id = models.CharField(max_length=200, unique=True)
+    merchant_request_id = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    phone_number = models.CharField(max_length=15)
+    mpesa_receipt_number = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=50, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.phone_number} - KES {self.amount} - {self.status}"
